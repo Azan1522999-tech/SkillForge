@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SkillForge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+
+    <nav>
+        <a href="index.html" class="logo">
+            <span>⚡</span> SkillForge
+        </a>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="index.html">Home</a>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+
+        <div class="dashboard-welcome">
+            <h1>Welcome back, <span id="welcomeName">Student</span>! 👋</h1>
+            <p>Continue your learning journey</p>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="dash-stat">
+                <div class="dash-stat-icon">📚</div>
+                <h3 id="statCourses">0</h3>
+                <p>Enrolled Courses</p>
+            </div>
+            <div class="dash-stat">
+                <div class="dash-stat-icon">✅</div>
+                <h3 id="statLessons">0</h3>
+                <p>Lessons Completed</p>
+            </div>
+            <div class="dash-stat">
+                <div class="dash-stat-icon">🏆</div>
+                <h3 id="statCertificates">0</h3>
+                <p>Certificates</p>
+            </div>
+            <div class="dash-stat">
+                <div class="dash-stat-icon">🔥</div>
+                <h3 id="statProgress">0%</h3>
+                <p>Average Progress</p>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>📚 My Courses</h2>
+            <div id="myCourses" class="dashboard-courses"></div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>🚀 Recommended Courses</h2>
+            <div id="recommendedCourses" class="dashboard-courses"></div>
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 SkillForge | Powered by ×͜× Mʀ᭄✰HACKER࿐✔</p>
+    </footer>
+
+    <script src="courses-data.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        if (!SkillForgeAuth.isLoggedIn()) {
+            window.location.href = 'login.html';
+        }
+
+        const user = SkillForgeAuth.getCurrentUser();
+        document.getElementById('welcomeName').textContent = user.name;
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('Logout?')) {
+                SkillForgeAuth.logout();
+            }
+        });
+
+        function updateStats() {
+            const enrolled = user.enrolledCourses || [];
+            document.getElementById('statCourses').textContent = enrolled.length;
+
+            let totalLessons = 0;
+            let totalProgress = 0;
+
+            enrolled.forEach(function(courseId) {
+                totalProgress += SkillForgeAuth.getProgress(courseId);
+                const completed = user.progress?.[courseId]?.completedLessons || [];
+                totalLessons += completed.length;
+            });
+
+            document.getElementById('statLessons').textContent = totalLessons;
+            document.getElementById('statCertificates').textContent = (user.certificates || []).length;
+            const avg = enrolled.length > 0 ? Math.round(totalProgress / enrolled.length) : 0;
+            document.getElementById('statProgress').textContent = avg + '%';
+        }
+
+        function renderMyCourses() {
+            const container = document.getElementById('myCourses');
+            const enrolled = user.enrolledCourses || [];
+
+            if (enrolled.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>You haven't enrolled in any courses yet.</p>
+                        <a href="index.html#courses" class="btn-primary">Browse Courses →</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            enrolled.forEach(function(courseId) {
+                const course = COURSES[courseId];
+                if (!course) return;
+                const progress = SkillForgeAuth.getProgress(courseId);
+                const completed = user.progress?.[courseId]?.completedLessons?.length || 0;
+
+                html += `
+                    <div class="dashboard-course-card">
+                        <div class="dc-icon">${course.icon}</div>
+                        <div class="dc-content">
+                            <h3>${course.title}</h3>
+                            <p>${completed} / ${course.lessonsData.length} lessons completed</p>
+                            <div class="dc-progress-bar">
+                                <div style="width: ${progress}%; background: ${course.color};"></div>
+                            </div>
+                            <span class="dc-progress-text">${progress}% Complete</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderRecommended() {
+            const container = document.getElementById('recommendedCourses');
+            const enrolled = user.enrolledCourses || [];
+            let html = '';
+            Object.keys(COURSES).forEach(function(courseId) {
+                if (enrolled.includes(courseId)) return;
+                const course = COURSES[courseId];
+                html += `
+                    <div class="dashboard-course-card">
+                        <div class="dc-icon">${course.icon}</div>
+                        <div class="dc-content">
+                            <h3>${course.title}</h3>
+                            <p>${course.description}</p>
+                            <span class="dc-level">${course.level} • ${course.duration}</span>
+                        </div>
+                        <button class="btn-primary" onclick="enrollAndGo('${courseId}')">Enroll →</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function enrollAndGo(courseId) {
+            const result = SkillForgeAuth.enrollCourse(courseId);
+            if (result.success) {
+                alert('Enrolled in ' + COURSES[courseId].title + '!');
+                location.reload();
+            } else {
+                alert(result.message);
+            }
+        }
+
+        updateStats();
+        renderMyCourses();
+        renderRecommended();
+    </script>
+
+</body>
+</html>
