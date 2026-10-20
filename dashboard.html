@@ -68,6 +68,7 @@
     <script src="courses-data.js"></script>
     <script src="auth.js"></script>
     <script>
+        // Check Login
         if (!SkillForgeAuth.isLoggedIn()) {
             window.location.href = 'login.html';
         }
@@ -75,12 +76,14 @@
         const user = SkillForgeAuth.getCurrentUser();
         document.getElementById('welcomeName').textContent = user.name;
 
+        // Logout
         document.getElementById('logoutBtn').addEventListener('click', function() {
             if (confirm('Logout?')) {
                 SkillForgeAuth.logout();
             }
         });
 
+        // Update Stats
         function updateStats() {
             const enrolled = user.enrolledCourses || [];
             document.getElementById('statCourses').textContent = enrolled.length;
@@ -96,10 +99,12 @@
 
             document.getElementById('statLessons').textContent = totalLessons;
             document.getElementById('statCertificates').textContent = (user.certificates || []).length;
+            
             const avg = enrolled.length > 0 ? Math.round(totalProgress / enrolled.length) : 0;
             document.getElementById('statProgress').textContent = avg + '%';
         }
 
+        // Render My Courses
         function renderMyCourses() {
             const container = document.getElementById('myCourses');
             const enrolled = user.enrolledCourses || [];
@@ -108,7 +113,7 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <p>You haven't enrolled in any courses yet.</p>
-                        <a href="course.html?course=${courseId}" class="btn-primary">Continue →</a>
+                        <a href="index.html#courses" class="btn-primary">Browse Courses →</a>
                     </div>
                 `;
                 return;
@@ -118,9 +123,11 @@
             enrolled.forEach(function(courseId) {
                 const course = COURSES[courseId];
                 if (!course) return;
+
                 const progress = SkillForgeAuth.getProgress(courseId);
                 const completed = user.progress?.[courseId]?.completedLessons?.length || 0;
 
+                // Course Card HTML (Updated)
                 html += `
                     <div class="dashboard-course-card">
                         <div class="dc-icon">${course.icon}</div>
@@ -132,12 +139,14 @@
                             </div>
                             <span class="dc-progress-text">${progress}% Complete</span>
                         </div>
+                        <a href="course.html?course=${courseId}" class="btn-primary" style="margin-left: 20px;">Continue →</a>
                     </div>
                 `;
             });
             container.innerHTML = html;
         }
 
+        // Render Recommended Courses
         function renderRecommended() {
             const container = document.getElementById('recommendedCourses');
             const enrolled = user.enrolledCourses || [];
@@ -160,16 +169,17 @@
             container.innerHTML = html;
         }
 
+        // Enroll and Go to Course
         function enrollAndGo(courseId) {
             const result = SkillForgeAuth.enrollCourse(courseId);
             if (result.success) {
-                alert('Enrolled in ' + COURSES[courseId].title + '!');
-                location.reload();
+                window.location.href = 'course.html?course=' + courseId;
             } else {
                 alert(result.message);
             }
         }
 
+        // Initialize
         updateStats();
         renderMyCourses();
         renderRecommended();
