@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Player - SkillForge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="course-player-page">
+
+    <!-- ===== NAVBAR ===== -->
+    <nav>
+        <a href="dashboard.html" class="logo">
+            <span>⚡</span> SkillForge
+        </a>
+        <div class="nav-links">
+            <a href="dashboard.html">← Back to Dashboard</a>
+            <span id="navUserName" style="color: #00ff88; font-weight: bold;"></span>
+        </div>
+    </nav>
+
+    <!-- ===== MAIN CONTAINER ===== -->
+    <div class="course-player-container">
+        
+        <!-- LEFT: Video & Notes -->
+        <div class="player-main">
+            <!-- Video Area -->
+            <div class="video-container">
+                <iframe id="lessonVideo" src="" allowfullscreen></iframe>
+            </div>
+
+            <!-- Lesson Info -->
+            <div class="lesson-info">
+                <h2 id="currentLessonTitle">Loading...</h2>
+                <p id="currentLessonDuration">⏱️ 0 min</p>
+                
+                <div class="lesson-actions">
+                    <button id="markCompleteBtn" class="btn-primary">Mark as Complete ✓</button>
+                </div>
+            </div>
+
+            <!-- Notes Area -->
+            <div class="lesson-notes-box">
+                <h3>📝 Lesson Notes</h3>
+                <div id="currentLessonNotes" class="notes-content">
+                    <!-- Notes yahan aayenge -->
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Sidebar (All Lessons) -->
+        <div class="player-sidebar">
+            <div class="sidebar-header">
+                <h3 id="sidebarCourseTitle">Course Title</h3>
+                <div class="sidebar-progress">
+                    <div id="sidebarProgressBar"></div>
+                </div>
+                <p id="sidebarProgressText">0% Complete</p>
+            </div>
+
+            <div class="lessons-list" id="sidebarLessonsList">
+                <!-- Lessons yahan aayenge -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="courses-data.js"></script>
+    <script src="auth.js"></script>
+    <script src="course.js"></script>
+</body>
+</html>
